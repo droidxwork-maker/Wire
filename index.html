@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-theme="paper" data-accent="crimson">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171916" id="meta-theme-color">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23171916'/%3E%3Cpath d='M15 14h34v8H24v7h22v8H24v7h25v8H15z' fill='%23fffefa'/%3E%3Cpath d='M43 14h6v38h-6z' fill='%23c8372d'/%3E%3C/svg%3E">
+  <meta name="description" content="Meridian Wire delivers clear, independent coverage of the stories shaping the world.">
+  <title>Meridian Wire | Independent News</title>
+
+  <!-- theme bootstrap: runs before paint so there is never a flash of the wrong theme -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("mw.theme");
+        var a = localStorage.getItem("mw.accent");
+        if (t) document.documentElement.setAttribute("data-theme", t);
+        if (a) document.documentElement.setAttribute("data-accent", a);
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://raw.githubusercontent.com">
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ============ TOKENS ============ */
+    :root{
+      --bg:#f4f1eb; --surface:#fffefa; --surface-2:#e9e5dc;
+      --text:#171916; --muted:#72756f;
+      --line:#dedbd3; --line-strong:#bdbab1;
+      --accent:#c8372d; --accent-dark:#a92720; --accent-soft:#f2b4ae;
+      --chrome:#171916; --chrome-text:#f8f5ef; --chrome-muted:#aaa99f;
+      --shadow:0 14px 45px rgba(30,32,27,.08);
+      --serif:Georgia,"Times New Roman",serif;
+    }
+    [data-theme="light"]{
+      --bg:#ffffff; --surface:#ffffff; --surface-2:#f1f2f0;
+      --text:#101211; --muted:#6a6e69;
+      --line:#e5e6e2; --line-strong:#c9cbc5;
+      --chrome:#101211; --chrome-text:#ffffff; --chrome-muted:#9ea19a;
+      --shadow:0 14px 45px rgba(16,18,17,.09);
+    }
+    [data-theme="dark"]{
+      --bg:#0e100f; --surface:#171a18; --surface-2:#20241f;
+      --text:#eae7e0; --muted:#9a9d95;
+      --line:#2a2e29; --line-strong:#3d423b;
+      --chrome:#070908; --chrome-text:#f4f1eb; --chrome-muted:#8e928a;
+      --shadow:0 18px 50px rgba(0,0,0,.55);
+    }
+    [data-accent="crimson"]{--accent:#c8372d;--accent-dark:#a92720;--accent-soft:#f2b4ae}
+    [data-accent="forest"] {--accent:#2c6b4f;--accent-dark:#21503b;--accent-soft:#a9d6bf}
+    [data-accent="ocean"]  {--accent:#1f6390;--accent-dark:#174b6d;--accent-soft:#a6cee6}
+    [data-accent="amber"]  {--accent:#b57810;--accent-dark:#8f5d0a;--accent-soft:#f0cf94}
+    [data-theme="dark"][data-accent="crimson"]{--accent:#e0564a;--accent-dark:#c8372d}
+    [data-theme="dark"][data-accent="forest"] {--accent:#4f9e79;--accent-dark:#2c6b4f}
+    [data-theme="dark"][data-accent="ocean"]  {--accent:#4a97c4;--accent-dark:#1f6390}
+    [data-theme="dark"][data-accent="amber"]  {--accent:#d9a13c;--accent-dark:#b57810}
+
+    /* ============ BASE ============ */
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    html.drawer-open,html.is-shielded{overflow:hidden}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:"Inter",Arial,sans-serif;line-height:1.8;transition:background .35s ease,color .35s ease}
+    button,input{font:inherit}button{cursor:pointer}
+    a{color:inherit;text-decoration:none}
+    img{display:block;max-width:100%;-webkit-user-drag:none;user-select:none}
+    .wrap{width:min(1240px,calc(100% - 44px));margin:auto}
+
+    /* ============ TOP BAR ============ */
+    .topline{background:var(--chrome);color:var(--chrome-text);font-size:12px}
+    .topline .wrap{display:flex;justify-content:space-between;align-items:center;min-height:36px;gap:15px;flex-wrap:wrap}
+    .live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#ef6255;box-shadow:0 0 0 4px #ef625522;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 3px #ef625522}50%{box-shadow:0 0 0 6px #ef62550d}}
+
+    /* ============ MASTHEAD ============ */
+    .masthead{padding:25px 0 20px;border-bottom:1px solid var(--line)}
+    .mast-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px}
+    .brand{display:flex;align-items:center;gap:12px;justify-self:center}
+    .brand-mark{width:54px;height:54px;flex:none}
+    .brand-name{font-size:34px;line-height:1;font-weight:900;letter-spacing:-2px}
+    .brand-name span{color:var(--accent)}
+    .brand-tag{font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:7px}
+    .mast-note{font-family:var(--serif);font-size:14px;color:var(--muted)}
+    .mast-right{justify-self:end;display:flex;align-items:center;gap:14px}
+    .mast-date{text-align:right;font-size:12px;color:var(--muted)}
+
+    /* ============ HAMBURGER ============ */
+    .menu-btn{width:44px;height:44px;flex:none;border:1px solid var(--line);border-radius:13px;background:var(--surface);
+      display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;padding:0;
+      transition:border-color .25s,background .25s,transform .25s}
+    .menu-btn span{display:block;width:18px;height:2px;border-radius:2px;background:var(--text);
+      transition:transform .34s cubic-bezier(.22,1,.36,1),opacity .2s,background .25s}
+    .menu-btn:hover{border-color:var(--accent);background:var(--surface-2)}
+    .menu-btn:active{transform:scale(.94)}
+    .menu-btn.active span:nth-child(1){transform:translateY(7px) rotate(45deg);background:var(--accent)}
+    .menu-btn.active span:nth-child(2){opacity:0;transform:scaleX(.3)}
+    .menu-btn.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg);background:var(--accent)}
+
+    /* ============ NAV ============ */
+    .navline{border-bottom:3px solid var(--text)}
+    .nav-inner{display:flex;align-items:center;gap:27px;min-height:51px;overflow:auto;scrollbar-width:none}
+    .nav-inner::-webkit-scrollbar{display:none}
+    .nav-link{white-space:nowrap;font-size:13px;font-weight:700;color:var(--text);opacity:.72;position:relative;transition:.2s}
+    .nav-link.active,.nav-link:hover{color:var(--accent);opacity:1}
+    .nav-link.active:after{content:"";position:absolute;bottom:-17px;right:0;left:0;height:3px;background:var(--accent)}
+    .search-area{margin-left:auto;position:relative;min-width:210px}
+    .search-area input{width:100%;border:0;background:transparent;border-bottom:1px solid var(--line-strong);
+      padding:8px 5px 8px 30px;outline:0;font-size:12px;color:var(--text);transition:border-color .2s}
+    .search-area input:focus{border-bottom-color:var(--accent)}
+    .search-area input::placeholder{color:var(--muted)}
+    .search-area svg{position:absolute;left:3px;top:11px;width:17px;height:17px;color:var(--muted);pointer-events:none}
+
+    /* ============ TICKER ============ */
+    .ticker{display:flex;align-items:center;gap:15px;padding:13px 0;border-bottom:1px solid var(--line);font-size:12px}
+    .ticker-label{background:var(--accent);color:#fff;padding:3px 10px;font-weight:800;white-space:nowrap}
+    .ticker-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
+
+    /* ============ SECTION HEADS ============ */
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin:34px 0 17px;
+      border-bottom:1px solid var(--text);padding-bottom:10px}
+    .section-title{font-size:19px;font-weight:900;margin:0}
+    .section-title:before{content:"";display:inline-block;width:5px;height:19px;background:var(--accent);margin:0 10px 0 0;vertical-align:-4px}
+    .section-kicker{font-family:var(--serif);font-size:11px;color:var(--muted);letter-spacing:1.5px}
+
+    /* ============ HERO ============ */
+    .hero-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,.85fr);gap:22px}
+    .hero-main{position:relative;min-height:440px;background:#252a25;overflow:hidden;color:#fff;isolation:isolate;cursor:pointer}
+    .hero-main img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform .6s}
+    .hero-main:hover img{transform:scale(1.035)}
+    .hero-main:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.86),rgba(0,0,0,.05) 75%);z-index:-1}
+    .hero-copy{position:absolute;bottom:0;left:0;right:auto;padding:32px;width:min(760px,100%);text-align:left}
+    .eyebrow{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--accent-soft)}
+    .hero-copy h1{font-size:clamp(25px,3.5vw,43px);line-height:1.5;margin:10px 0;font-weight:900}
+    .hero-copy p{font-size:14px;color:#e5e4df;max-width:700px;margin:0 0 15px}
+    .meta{font-size:11px;color:var(--muted);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .hero-copy .meta{color:#d5d5ce}
+    .hero-side{display:flex;flex-direction:column;gap:16px}
+    .side-story{display:grid;grid-template-columns:112px 1fr;gap:13px;padding-bottom:15px;border-bottom:1px solid var(--line);cursor:pointer}
+    .side-story img{width:112px;height:94px;object-fit:cover;background:var(--surface-2)}
+    .side-story h3{font-size:14px;line-height:1.65;margin:4px 0 8px}
+    .side-story .meta{font-size:10px}
+    .side-story:hover h3{color:var(--accent)}
+
+    /* ============ CONTENT ============ */
+    .content-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:35px;align-items:start}
+    .news-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+    .news-card{background:var(--surface);border:1px solid var(--line);cursor:pointer;
+      transition:transform .22s,box-shadow .22s,border-color .22s;min-width:0}
+    .news-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--line-strong)}
+    .news-card img{width:100%;height:190px;object-fit:cover;background:var(--surface-2)}
+    .card-body{padding:15px 17px 17px}
+    .category{font-size:10px;font-weight:900;color:var(--accent);letter-spacing:.4px}
+    .news-card h3{font-size:16px;line-height:1.75;margin:7px 0 8px}
+    .news-card:hover h3{color:var(--accent)}
+    .news-card p{font-size:12px;color:var(--muted);line-height:1.9;margin:0 0 13px;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .sidebar{position:sticky;top:20px}
+    .side-box{background:var(--surface);padding:20px;border:1px solid var(--line);margin-bottom:18px}
+    .side-box h3{margin:0 0 14px;font-size:16px;border-bottom:2px solid var(--text);padding-bottom:9px}
+    .rank-item{display:grid;grid-template-columns:29px 1fr;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
+    .rank-item:last-child{border:0}
+    .rank-item:hover h4{color:var(--accent)}
+    .rank-num{font-family:var(--serif);font-size:22px;color:var(--muted);opacity:.55;font-weight:bold}
+    .rank-item h4{font-size:12px;line-height:1.8;margin:0}
+    .rank-item small{color:var(--muted);font-size:10px}
+
+    .load-more{display:block;margin:28px auto 0;padding:11px 28px;border:1px solid var(--text);background:transparent;
+      font-size:12px;font-weight:800;color:var(--text);transition:.22s}
+    .load-more:hover{background:var(--chrome);color:var(--chrome-text);border-color:var(--chrome)}
+    .empty{padding:45px 20px;text-align:center;background:var(--surface);color:var(--muted);border:1px dashed var(--line);grid-column:1/-1}
+
+    /* ============ FOOTER ============ */
+    .footer{margin-top:70px;background:var(--chrome);color:var(--chrome-text);padding:42px 0 22px}
+    .footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:35px}
+    .footer .brand-name{font-size:27px}
+    .footer p{color:var(--chrome-muted);font-size:12px;max-width:380px}
+    .footer h4{font-size:13px;margin:0 0 12px}
+    .footer a{display:block;color:var(--chrome-muted);font-size:12px;margin:7px 0;transition:color .2s}
+    .footer a:hover{color:var(--accent-soft)}
+    .copyright{border-top:1px solid rgba(255,255,255,.12);margin-top:30px;padding-top:15px;
+      color:var(--chrome-muted);font-size:10px;display:flex;justify-content:space-between;gap:15px}
+
+    /* ============ STATUS ============ */
+    .status{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px;white-space:nowrap}
+    .status:before{content:"";width:7px;height:7px;border-radius:50%;background:#6d9a70;flex:none}
+    .status.offline:before{background:#d18a42}
+    .status.error:before{background:#c8372d}
+
+    /* ============ ARTICLE / SEARCH ============ */
+    .article-view{display:none;padding:30px 0 70px}
+    .article-shell{max-width:850px;margin:auto;text-align:left}
+    .back-link{border:0;background:transparent;padding:0;color:var(--accent);font-size:12px;font-weight:800;margin-bottom:22px}
+    .article-category{color:var(--accent);font-size:12px;font-weight:900}
+    .article-title{font-size:clamp(27px,5vw,48px);line-height:1.5;margin:10px 0 15px;font-weight:900}
+    .article-summary{font-size:18px;line-height:2;color:var(--muted);margin:15px 0 20px}
+    .article-image{width:100%;max-height:510px;object-fit:cover;background:var(--surface-2);margin:22px 0}
+    .article-content{font-size:16px;line-height:2.25;white-space:pre-line;color:var(--text);opacity:.9}
+    .source-link{display:inline-block;margin-top:25px;padding:9px 16px;background:var(--chrome);color:var(--chrome-text);font-size:12px}
+    .article-tools{display:flex;gap:10px;margin-top:18px}
+    .tool-btn{border:1px solid var(--line);background:transparent;color:var(--text);padding:7px 12px;font-size:11px;transition:.2s}
+    .tool-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .search-results{display:none;padding:20px 0 40px}
+    .search-results h2{font-size:20px}
+    .search-results .news-grid{margin-top:18px}
+
+    /* ============ SKELETON ============ */
+    .skeleton{background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface) 37%,var(--surface-2) 63%);
+      background-size:400% 100%;animation:shine 1.4s ease infinite}
+    @keyframes shine{0%{background-position:100% 0}100%{background-position:0 0}}
+
+    /* ============ DRAWER ============ */
+    .drawer-scrim{position:fixed;inset:0;background:rgba(8,10,8,.55);backdrop-filter:blur(3px);
+      opacity:0;visibility:hidden;transition:opacity .32s,visibility .32s;z-index:900}
+    .drawer-scrim.open{opacity:1;visibility:visible}
+    .drawer{position:fixed;top:0;right:0;height:100dvh;width:min(400px,92vw);background:var(--surface);
+      border-left:1px solid var(--line);z-index:901;display:flex;flex-direction:column;
+      transform:translateX(102%);transition:transform .42s cubic-bezier(.22,1,.36,1);
+      box-shadow:-26px 0 70px rgba(0,0,0,.22)}
+    .drawer.open{transform:none}
+    .drawer-head{display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:18px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surface);z-index:2}
+    .drawer-brand{display:flex;align-items:center;gap:10px}
+    .drawer-brand svg{width:36px;height:36px;flex:none}
+    .drawer-brand b{display:block;font-size:15px;font-weight:900;letter-spacing:-.6px;line-height:1.1}
+    .drawer-brand b span{color:var(--accent)}
+    .drawer-brand small{display:block;font-size:8px;letter-spacing:1.6px;color:var(--muted);margin-top:4px}
+    .drawer-close{width:36px;height:36px;flex:none;border:1px solid var(--line);border-radius:10px;background:transparent;
+      color:var(--text);display:grid;place-items:center;transition:.2s}
+    .drawer-close svg{width:16px;height:16px}
+    .drawer-close:hover{border-color:var(--accent);color:var(--accent);transform:rotate(90deg)}
+    .drawer-body{padding:22px 20px 10px;overflow-y:auto;flex:1}
+    .drawer-sec{opacity:0;transform:translateY(12px);transition:opacity .4s,transform .4s;margin-bottom:26px}
+    .drawer.open .drawer-sec{opacity:1;transform:none}
+    .drawer.open .drawer-sec:nth-child(1){transition-delay:.08s}
+    .drawer.open .drawer-sec:nth-child(2){transition-delay:.14s}
+    .drawer.open .drawer-sec:nth-child(3){transition-delay:.2s}
+    .drawer.open .drawer-sec:nth-child(4){transition-delay:.26s}
+    .drawer-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);
+      margin:0 0 13px;font-weight:800;display:flex;align-items:center;gap:9px}
+    .drawer-title:after{content:"";flex:1;height:1px;background:var(--line)}
+    .theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+    .theme-card{border:1px solid var(--line);background:transparent;border-radius:12px;padding:8px 6px 7px;
+      display:flex;flex-direction:column;align-items:center;gap:7px;font-size:9px;font-weight:800;
+      letter-spacing:.6px;text-transform:uppercase;color:var(--muted);transition:.22s}
+    .theme-card:hover{border-color:var(--accent);color:var(--text);transform:translateY(-2px)}
+    .theme-card.active{border-color:var(--accent);color:var(--text)}
+    .theme-card.active .theme-prev{box-shadow:0 0 0 2px var(--accent)}
+    .theme-prev{width:100%;height:34px;border-radius:7px;position:relative;overflow:hidden;
+      border:1px solid rgba(0,0,0,.14);transition:.22s}
+    .theme-prev:before{content:"";position:absolute;left:6px;right:6px;top:7px;height:4px;border-radius:2px}
+    .theme-prev:after{content:"";position:absolute;left:6px;right:18px;top:16px;height:3px;border-radius:2px;opacity:.6}
+    .prev-paper{background:#f4f1eb}.prev-paper:before{background:#171916}.prev-paper:after{background:#c8372d}
+    .prev-light{background:#ffffff}.prev-light:before{background:#101211}.prev-light:after{background:#1f6390}
+    .prev-dark{background:#12150f}.prev-dark:before{background:#eae7e0}.prev-dark:after{background:#e0564a}
+    .accent-row{display:flex;gap:10px;margin-top:16px;align-items:center}
+    .accent-dot{width:26px;height:26px;border-radius:50%;background:var(--dot);border:2px solid transparent;
+      box-shadow:0 0 0 1px rgba(0,0,0,.14);transition:.2s;position:relative}
+    .accent-dot:hover{transform:scale(1.12)}
+    .accent-dot.active{border-color:var(--surface);box-shadow:0 0 0 2px var(--dot)}
+    .accent-hint{font-size:10px;color:var(--muted);margin-left:auto}
+    .about-text{font-size:12.5px;line-height:1.95;color:var(--muted);margin:0 0 14px}
+    .about-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .stat{background:var(--surface-2);border-radius:10px;padding:9px 6px;text-align:center}
+    .stat b{display:block;font-size:15px;color:var(--accent);line-height:1.3}
+    .stat small{font-size:8.5px;letter-spacing:.6px;color:var(--muted);text-transform:uppercase}
+    .drawer-links{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .drawer-link{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--line);
+      border-radius:10px;padding:10px 12px;font-size:12px;font-weight:700;color:var(--text);transition:.2s;background:transparent}
+    .drawer-link:hover{border-color:var(--accent);color:var(--accent);transform:translateX(3px)}
+    .drawer-link i{font-style:normal;opacity:.45;font-size:11px}
+    .drawer-foot{border-top:1px solid var(--line);padding:14px 20px;display:flex;align-items:center;
+      justify-content:space-between;gap:10px;font-size:10px;color:var(--muted);background:var(--surface)}
+
+    /* ============ SHIELD ============ */
+    .shield{position:fixed;inset:0;z-index:9999;display:none;place-items:center;padding:24px;
+      background:rgba(10,12,10,.86);backdrop-filter:blur(16px) saturate(.7);-webkit-backdrop-filter:blur(16px) saturate(.7)}
+    .shield.show{display:grid;animation:shieldIn .25s ease}
+    @keyframes shieldIn{from{opacity:0}to{opacity:1}}
+    .shield-card{max-width:430px;width:100%;text-align:center;color:#f4f1eb;
+      background:rgba(20,23,20,.92);border:1px solid rgba(255,255,255,.09);border-radius:20px;
+      padding:38px 30px 30px;box-shadow:0 40px 90px rgba(0,0,0,.6)}
+    .shield-ring{width:74px;height:74px;margin:0 auto 20px;border-radius:50%;display:grid;place-items:center;
+      border:2px solid rgba(224,86,74,.35);position:relative}
+    .shield-ring:before{content:"";position:absolute;inset:-2px;border-radius:50%;
+      border:2px solid transparent;border-top-color:#e0564a;animation:spin 1.4s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .shield-ring svg{width:30px;height:30px;color:#e0564a}
+    .shield-card h2{margin:0 0 10px;font-size:20px;font-weight:900;letter-spacing:-.4px}
+    .shield-card p{margin:0 0 20px;font-size:13px;line-height:2;color:#b9bdb4}
+    .shield-bar{height:3px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:14px}
+    .shield-bar span{display:block;height:100%;width:38%;border-radius:3px;
+      background:linear-gradient(90deg,#e0564a,#f0a89f);animation:slide 1.5s ease-in-out infinite}
+    @keyframes slide{0%{transform:translateX(-110%)}100%{transform:translateX(320%)}}
+    .shield-card small{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:#7f847c}
+    html.is-shielded body > *:not(.shield){filter:blur(18px) saturate(.5);pointer-events:none;user-select:none}
+
+    /* ============ RESPONSIVE ============ */
+    @media(max-width:850px){
+      .content-grid{grid-template-columns:1fr}
+      .sidebar{position:static;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+      .hero-grid{grid-template-columns:1fr}
+      .hero-main{min-height:390px}
+      .hero-side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+      .side-story{grid-template-columns:90px 1fr}
+      .side-story img{width:90px;height:85px}
+      .footer-grid{grid-template-columns:1fr 1fr}
+      .footer-grid>div:first-child{grid-column:1/-1}
+    }
+    @media(max-width:560px){
+      .wrap{width:min(100% - 28px,1240px)}
+      .topline .wrap{font-size:10px;gap:7px}
+      .masthead{padding:17px 0}
+      .mast-row{grid-template-columns:1fr auto}
+      .mast-note{display:none}
+      .brand{justify-self:start}
+      .brand-mark{width:43px;height:43px}
+      .brand-name{font-size:23px}
+      .brand-tag{font-size:8px}
+      .mast-date{font-size:10px}
+      .menu-btn{width:40px;height:40px;border-radius:11px}
+      .nav-inner{gap:20px;min-height:48px}
+      .search-area{min-width:155px}
+      .ticker{font-size:10px}
+      .section-head{margin-top:27px}
+      .hero-main{min-height:370px}
+      .hero-copy{padding:20px}
+      .hero-copy h1{font-size:25px}
+      .hero-copy p{font-size:12px}
+      .hero-side{display:flex}
+      .side-story{grid-template-columns:100px 1fr}
+      .side-story img{width:100px;height:83px}
+      .news-grid{grid-template-columns:1fr;gap:14px}
+      .news-card{display:grid;grid-template-columns:116px 1fr}
+      .news-card img{height:100%;min-height:150px}
+      .card-body{padding:10px 12px}
+      .news-card h3{font-size:13px;margin:5px 0}
+      .news-card p{font-size:10px}
+      .news-card .meta{font-size:9px}
+      .sidebar{grid-template-columns:1fr}
+      .footer-grid{grid-template-columns:1fr 1fr;gap:20px}
+      .copyright{flex-direction:column}
+      .article-summary{font-size:15px}
+      .article-content{font-size:14px}
+      .article-image{max-height:330px}
+      .drawer{width:100vw}
+    }
+    @media(prefers-reduced-motion:reduce){
+      *,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ================= SHIELD ================= -->
+<div class="shield" id="shield" role="alertdialog" aria-hidden="true" aria-label="Content protected">
+  <div class="shield-card">
+    <div class="shield-ring">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3l7 3v6c0 4.2-2.9 7.7-7 9-4.1-1.3-7-4.8-7-9V6l7-3z"/><path d="M12 9v4"/><path d="M12 16.5h.01"/>
+      </svg>
+    </div>
+    <h2>Developer tools detected</h2>
+    <p>Meridian Wire protects its editorial source. Close the developer tools to return to the edition.</p>
+    <div class="shield-bar"><span></span></div>
+    <small>Reading session paused</small>
+  </div>
+</div>
+
+<!-- ================= TOP BAR ================= -->
+<div class="topline"><div class="wrap">
+  <span><i class="live-dot"></i>INDEPENDENT JOURNALISM · GLOBAL PERSPECTIVES</span>
+  <span id="top-date">MERIDIAN WIRE</span>
+  <span class="status js-status">Connecting…</span>
+</div></div>
+
+<!-- ================= MASTHEAD ================= -->
+<header class="masthead"><div class="wrap mast-row">
+  <div class="mast-note">Clarity over noise.</div>
+  <a class="brand" href="#" aria-label="Meridian Wire home" onclick="goHome();return false">
+    <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="17" fill="var(--accent)"/><path d="M17 18h30v7H25v7h19v7H25v7h22v7H17z" fill="#fffefa"/><path d="M45 17h5v34h-5z" fill="#171916" opacity=".2"/></svg>
+    <div><div class="brand-name">MERIDIAN<span> WIRE</span></div><div class="brand-tag">INDEPENDENT NEWS · GLOBAL VIEW</div></div>
+  </a>
+  <div class="mast-right">
+    <div class="mast-date"><div id="persian-date"></div><div>DAILY EDITION</div></div>
+    <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</div></header>
+
+<!-- ================= NAV ================= -->
+<nav class="navline"><div class="wrap nav-inner" id="category-nav">
+  <a href="#" class="nav-link active" data-category="all">Home</a>
+  <a href="#" class="nav-link" data-category="world">World</a>
+  <a href="#" class="nav-link" data-category="business">Business</a>
+  <a href="#" class="nav-link" data-category="technology">Technology</a>
+  <a href="#" class="nav-link" data-category="science">Science</a>
+  <a href="#" class="nav-link" data-category="culture">Culture</a>
+  <label class="search-area">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+    <input id="search-input" type="search" placeholder="Search stories..." autocomplete="off" aria-label="Search stories">
+  </label>
+</div></nav>
+
+<!-- ================= HOME ================= -->
+<main class="wrap" id="home-view">
+  <div class="ticker"><span class="ticker-label">THE BRIEF</span><span class="ticker-text" id="ticker-text">Loading the latest headlines...</span></div>
+
+  <section id="hero-section">
+    <div class="section-head"><h2 class="section-title">Top Story</h2><span class="section-kicker">THE BIG STORY</span></div>
+    <div class="hero-grid">
+      <div class="hero-main skeleton" id="hero-main" role="button" tabindex="0" aria-label="Featured story"></div>
+      <div class="hero-side" id="hero-side">
+        <div class="skeleton" style="height:110px"></div>
+        <div class="skeleton" style="height:110px"></div>
+        <div class="skeleton" style="height:110px"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="content-grid">
+    <div>
+      <section id="latest-section">
+        <div class="section-head"><h2 class="section-title">Latest News</h2><span class="section-kicker">LATEST STORIES</span></div>
+        <div class="news-grid" id="latest-grid"><div class="empty">Loading stories...</div></div>
+        <button class="load-more" id="load-more">Load More</button>
+      </section>
+      <section id="recommended-section">
+        <div class="section-head"><h2 class="section-title">Editor’s Picks</h2><span class="section-kicker">EDITOR'S PICKS</span></div>
+        <div class="news-grid" id="recommended-grid"></div>
+      </section>
+    </div>
+    <aside class="sidebar">
+      <section class="side-box">
+        <h3>Most Read</h3>
+        <div id="trending-list"></div>
+      </section>
+      <section class="side-box">
+        <h3>About Meridian Wire</h3>
+        <p style="font-size:12px;color:var(--muted);margin:0">Independent reporting and thoughtful perspectives on the events shaping our world.</p>
+        <div class="status js-status" style="margin-top:14px">Connecting…</div>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<!-- ================= ARTICLE ================= -->
+<main class="wrap article-view" id="article-view"><div class="article-shell">
+  <button class="back-link" onclick="goHome()">← Back to Home</button>
+  <div id="article-content"></div>
+</div></main>
+
+<!-- ================= SEARCH ================= -->
+<main class="wrap search-results" id="search-view">
+  <button class="back-link" onclick="goHome()">← Back</button>
+  <h2 id="search-heading">Search Results</h2>
+  <div class="news-grid" id="search-grid"></div>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer"><div class="wrap">
+  <div class="footer-grid">
+    <div>
+      <a class="brand" href="#" onclick="goHome();return false" style="justify-self:start;color:var(--chrome-text)">
+        <svg class="brand-mark" viewBox="0 0 64 64"><rect x="2" y="2" width="60" height="60" rx="17" fill="var(--accent)"/><path d="M17 18h30v7H25v7h19v7H25v7h22v7H17z" fill="#fffefa"/></svg>
+        <div><div class="brand-name">MERIDIAN<span> WIRE</span></div><div class="brand-tag" style="color:var(--chrome-muted)">INDEPENDENT NEWS · GLOBAL VIEW</div></div>
+      </a>
+      <p>Independent reporting and thoughtful perspectives on the events shaping our world.</p>
+    </div>
+    <div>
+      <h4>Sections</h4>
+      <a href="#" onclick="filterCategory('world');return false">World</a>
+      <a href="#" onclick="filterCategory('business');return false">Business</a>
+      <a href="#" onclick="filterCategory('technology');return false">Technology</a>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <a href="#" onclick="goHome();return false">Home</a>
+      <a href="#latest-section" onclick="goHome()">Latest News</a>
+    </div>
+  </div>
+  <div class="copyright">
+    <span>© <span id="year"></span> Meridian Wire — All rights reserved.</span>
+    <span>Reporting that matters.</span>
+  </div>
+</div></footer>
+
+<!-- ================= DRAWER ================= -->
+<div class="drawer-scrim" id="drawer-scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Meridian Wire menu">
+  <div class="drawer-head">
+    <div class="drawer-brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="17" fill="var(--accent)"/><path d="M17 18h30v7H25v7h19v7H25v7h22v7H17z" fill="#fffefa"/><path d="M45 17h5v34h-5z" fill="#171916" opacity=".2"/></svg>
+      <div><b>MERIDIAN<span> WIRE</span></b><small>INDEPENDENT NEWS</small></div>
+    </div>
+    <button class="drawer-close" id="drawer-close" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+
+  <div class="drawer-body">
+    <section class="drawer-sec">
+      <h4 class="drawer-title">Appearance</h4>
+      <div class="theme-grid" id="theme-grid">
+        <button class="theme-card" data-theme-set="paper" type="button"><span class="theme-prev prev-paper"></span>Paper</button>
+        <button class="theme-card" data-theme-set="light" type="button"><span class="theme-prev prev-light"></span>Light</button>
+        <button class="theme-card" data-theme-set="dark" type="button"><span class="theme-prev prev-dark"></span>Dark</button>
+      </div>
+      <div class="accent-row" id="accent-row">
+        <button class="accent-dot" data-accent-set="crimson" style="--dot:#c8372d" aria-label="Crimson accent" type="button"></button>
+        <button class="accent-dot" data-accent-set="forest" style="--dot:#2c6b4f" aria-label="Forest accent" type="button"></button>
+        <button class="accent-dot" data-accent-set="ocean" style="--dot:#1f6390" aria-label="Ocean accent" type="button"></button>
+        <button class="accent-dot" data-accent-set="amber" style="--dot:#b57810" aria-label="Amber accent" type="button"></button>
+        <span class="accent-hint">Accent</span>
+      </div>
+    </section>
+
+    <section class="drawer-sec">
+      <h4 class="drawer-title">About</h4>
+      <p class="about-text">Meridian Wire is an independent newsroom built on a simple idea: clarity beats noise. We report the events shaping the world without spin, and we keep the reading experience calm, fast and ad-free.</p>
+      <div class="about-stats">
+        <div class="stat"><b>24/7</b><small>Newsroom</small></div>
+        <div class="stat"><b>6</b><small>Sections</small></div>
+        <div class="stat"><b>100%</b><small>Independent</small></div>
+      </div>
+    </section>
+
+    <section class="drawer-sec">
+      <h4 class="drawer-title">Sections</h4>
+      <div class="drawer-links">
+        <button class="drawer-link" type="button" onclick="filterCategory('world');closeDrawer()">World <i>→</i></button>
+        <button class="drawer-link" type="button" onclick="filterCategory('business');closeDrawer()">Business <i>→</i></button>
+        <button class="drawer-link" type="button" onclick="filterCategory('technology');closeDrawer()">Technology <i>→</i></button>
+        <button class="drawer-link" type="button" onclick="filterCategory('science');closeDrawer()">Science <i>→</i></button>
+        <button class="drawer-link" type="button" onclick="filterCategory('culture');closeDrawer()">Culture <i>→</i></button>
+        <button class="drawer-link" type="button" onclick="filterCategory('all');closeDrawer()">Home <i>→</i></button>
+      </div>
+    </section>
+  </div>
+
+  <div class="drawer-foot">
+    <span class="status js-status">Connecting…</span>
+    <span>v1.2 · Protected</span>
+  </div>
+</aside>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ==================================================================
+     1) FRONT-END SHIELD  (deterrent layer — see notes in the reply)
+     ================================================================== */
+  const Shield = (() => {
+    const el = document.getElementById("shield");
+    let tripped = false, closedTicks = 0, probing = false;
+
+    const show = () => {
+      if (tripped) return;
+      tripped = true; closedTicks = 0;
+      el.classList.add("show");
+      el.setAttribute("aria-hidden", "false");
+      document.documentElement.classList.add("is-shielded");
+    };
+    const hide = () => {
+      if (!tripped) return;
+      tripped = false;
+      el.classList.remove("show");
+      el.setAttribute("aria-hidden", "true");
+      document.documentElement.classList.remove("is-shielded");
+    };
+
+    /* --- keyboard shortcuts --- */
+    const kill = e => { e.preventDefault(); e.stopPropagation(); show(); return false; };
+    document.addEventListener("keydown", e => {
+      const k = (e.key || "").toLowerCase();
+      const mod = e.ctrlKey || e.metaKey;
+      if (e.key === "F12") return kill(e);
+      if (mod && e.shiftKey && (k === "i" || k === "j" || k === "c" || k === "k")) return kill(e);
+      if (mod && (k === "u" || k === "s")) return kill(e);
+      if (e.metaKey && e.altKey && (k === "i" || k === "j" || k === "c" || k === "u")) return kill(e);
+    }, true);
+
+    /* --- right click / drag / selection of media --- */
+    document.addEventListener("contextmenu", e => { e.preventDefault(); return false; }, true);
+    document.addEventListener("dragstart", e => { if (e.target && e.target.tagName === "IMG") e.preventDefault(); }, true);
+    document.addEventListener("selectstart", e => {
+      const t = e.target;
+      if (t && (t.tagName === "IMG" || t.tagName === "SVG")) e.preventDefault();
+    }, true);
+
+    /* --- console probe: fires the getter only when the console renders --- */
+    try {
+      const probe = {};
+      Object.defineProperty(probe, "id", { get() { show(); return "mw"; } });
+      probing = true;
+      setInterval(() => {
+        if (tripped) return;
+        try { console.log(probe); console.clear(); } catch (err) {}
+      }, 2000);
+    } catch (err) { probing = false; }
+
+    /* --- viewport heuristic: docked devtools shrink the viewport --- */
+    setInterval(() => {
+      const wDiff = window.outerWidth - window.innerWidth;
+      const hDiff = window.outerHeight - window.innerHeight;
+      const open = wDiff > 200 || hDiff > 250;
+      if (open) { show(); closedTicks = 0; }
+      else if (tripped) { closedTicks++; if (closedTicks > 4) hide(); }
+    }, 700);
+
+    /* --- frame busting --- */
+    try {
+      if (window.top !== window.self) {
+        window.top.location = window.self.location;
+      }
+    } catch (err) {
+      document.documentElement.innerHTML = "";
+    }
+
+    return { show, hide };
+  })();
+
+  /* ==================================================================
+     2) THEME + ACCENT
+     ================================================================== */
+  const root = document.documentElement;
+  const META = document.getElementById("meta-theme-color");
+  const THEME_META = { paper: "#f4f1eb", light: "#ffffff", dark: "#0e100f" };
+
+  function applyTheme(theme, persist) {
+    root.setAttribute("data-theme", theme);
+    if (META) META.setAttribute("content", THEME_META[theme] || "#171916");
+    document.querySelectorAll("[data-theme-set]").forEach(b =>
+      b.classList.toggle("active", b.dataset.themeSet === theme));
+    if (persist) { try { localStorage.setItem("mw.theme", theme); } catch (e) {} }
+  }
+  function applyAccent(accent, persist) {
+    root.setAttribute("data-accent", accent);
+    document.querySelectorAll("[data-accent-set]").forEach(b =>
+      b.classList.toggle("active", b.dataset.accentSet === accent));
+    if (persist) { try { localStorage.setItem("mw.accent", accent); } catch (e) {} }
+  }
+
+  applyTheme(root.getAttribute("data-theme") || "paper", false);
+  applyAccent(root.getAttribute("data-accent") || "crimson", false);
+
+  document.querySelectorAll("[data-theme-set]").forEach(btn =>
+    btn.addEventListener("click", () => applyTheme(btn.dataset.themeSet, true)));
+  document.querySelectorAll("[data-accent-set]").forEach(btn =>
+    btn.addEventListener("click", () => applyAccent(btn.dataset.accentSet, true)));
+
+  /* ==================================================================
+     3) DRAWER
+     ================================================================== */
+  const drawerEl = document.getElementById("drawer");
+  const scrimEl  = document.getElementById("drawer-scrim");
+  const menuBtn  = document.getElementById("menu-btn");
+  const closeBtn = document.getElementById("drawer-close");
+  let lastFocus = null;
+
+  function openDrawer() {
+    lastFocus = document.activeElement;
+    drawerEl.classList.add("open");
+    scrimEl.classList.add("open");
+    menuBtn.classList.add("active");
+    menuBtn.setAttribute("aria-expanded", "true");
+    drawerEl.setAttribute("aria-hidden", "false");
+    root.classList.add("drawer-open");
+    setTimeout(() => closeBtn && closeBtn.focus({ preventScroll: true }), 260);
+  }
+  function closeDrawer() {
+    drawerEl.classList.remove("open");
+    scrimEl.classList.remove("open");
+    menuBtn.classList.remove("active");
+    menuBtn.setAttribute("aria-expanded", "false");
+    drawerEl.setAttribute("aria-hidden", "true");
+    root.classList.remove("drawer-open");
+    if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+  }
+  window.closeDrawer = closeDrawer;
+
+  menuBtn.addEventListener("click", () => {
+    drawerEl.classList.contains("open") ? closeDrawer() : openDrawer();
+  });
+  closeBtn.addEventListener("click", closeDrawer);
+  scrimEl.addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && drawerEl.classList.contains("open")) closeDrawer();
+  });
+
+  /* ==================================================================
+     4) APPLICATION
+     ================================================================== */
+  const BASE = "https://raw.githubusercontent.com/droidxwork-maker/Data/main/";
+  const FILES = ["manifest.js", "settings.js", "categories.js", "maintenance.js", "news.js"];
+  const DB_NAME = "MeridianWireCache", STORE = "content";
+  const DEFAULT_POLL = 60000;
+  const state = {articles:[], categories:[], settings:{}, manifest:{}, maintenance:{}, shown:8, category:"all", query:"", loadedAt:0, cacheUsed:false};
+
+  const $ = id => document.getElementById(id);
+  const safe = value => String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+  const dateLabel = value => {
+    if (!value) return "";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return safe(value);
+    try { return new Intl.DateTimeFormat("en-US",{year:"numeric",month:"short",day:"numeric"}).format(d); }
+    catch { return d.toLocaleDateString(); }
+  };
+  const catNames = {technology:"Technology",business:"Business",science:"Science",culture:"Culture",world:"World"};
+
+  /* --- IndexedDB cache --- */
+  const dbOpen = () => new Promise(resolve => {
+    if (!("indexedDB" in window)) return resolve(null);
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = () => { if (!req.result.objectStoreNames.contains(STORE)) req.result.createObjectStore(STORE); };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => resolve(null);
+  });
+  async function cacheGet(key) {
+    const db = await dbOpen(); if (!db) return null;
+    return new Promise(resolve => {
+      const r = db.transaction(STORE).objectStore(STORE).get(key);
+      r.onsuccess = () => resolve(r.result || null);
+      r.onerror = () => resolve(null);
+    });
+  }
+  async function cacheSet(key, value) {
+    const db = await dbOpen(); if (!db) return;
+    return new Promise(resolve => {
+      const tx = db.transaction(STORE, "readwrite");
+      tx.objectStore(STORE).put(value, key);
+      tx.oncomplete = resolve; tx.onerror = resolve;
+    });
+  }
+
+  /* --- remote content loader --- */
+  async function loadScript(file) {
+    const url = BASE + file + "?v=" + encodeURIComponent(state.manifest?.content_version || "1.1.0") + "&t=" + Date.now();
+    let response;
+    try {
+      response = await fetch(url, {method:"GET", mode:"cors", cache:"no-store", credentials:"omit"});
+    } catch (error) {
+      throw new Error("Unable to connect to GitHub while fetching " + file + ": " + error.message);
+    }
+    if (!response.ok) throw new Error("GitHub did not return file " + file + " with HTTP status " + response.status + ".");
+    const source = await response.text();
+    if (!source.trim()) throw new Error("File " + file + " is empty.");
+    const blobUrl = URL.createObjectURL(new Blob([source], {type:"text/javascript"}));
+    try {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = blobUrl; script.async = false; script.dataset.content = file;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("Unable to execute JavaScript in file " + file + "."));
+        document.head.appendChild(script);
+      });
+    } finally {
+      URL.revokeObjectURL(blobUrl);
+    }
+  }
+
+  async function loadRemote() {
+    window.DROIDX_CONTENT = {};
+    await loadScript("manifest.js");
+    state.manifest = window.DROIDX_CONTENT.manifest || {};
+    for (const file of ["settings.js","categories.js","maintenance.js","news.js"]) await loadScript(file);
+    const data = window.DROIDX_CONTENT || {};
+    if (!data.news || !Array.isArray(data.news.articles)) throw new Error("Invalid news.js structure");
+    const bundle = {
+      manifest: data.manifest || state.manifest,
+      settings: data.settings || {},
+      categories: data.categories?.items || [],
+      maintenance: data.maintenance || {},
+      articles: data.news.articles,
+      storedAt: Date.now()
+    };
+    await cacheSet("bundle", bundle);
+    return bundle;
+  }
+
+  async function loadData() {
+    const cached = await cacheGet("bundle");
+    if (cached && Array.isArray(cached.articles) && cached.articles.length) {
+      applyBundle(cached); state.cacheUsed = true;
+      setStatus("Showing saved edition · checking for updates…", "offline");
+    }
+    try {
+      const bundle = await loadRemote();
+      applyBundle(bundle); state.cacheUsed = false;
+      setStatus("Online · last checked " + new Date().toLocaleTimeString("en-US"), "");
+    } catch (error) {
+      console.warn(error);
+      if (!state.articles.length) {
+        setStatus("Unable to load stories. Check your connection and try again.", "error");
+        $("latest-grid").innerHTML = '<div class="empty">Stories are temporarily unavailable. Check your connection and reload the page.</div>';
+        return;
+      }
+      setStatus("You are offline. Showing the last saved edition.", "offline");
+    }
+    render();
+    const interval = Number(state.settings.poll_interval_ms) || DEFAULT_POLL;
+    window.setInterval(refreshData, Math.max(30000, interval));
+  }
+
+  function applyBundle(b) {
+    state.manifest = b.manifest || {};
+    state.settings = b.settings || {};
+    state.categories = b.categories || [];
+    state.maintenance = b.maintenance || {};
+    state.articles = (b.articles || []).filter(a => a && a.id && a.title);
+    if (!state.articles.length) {
+      $("latest-grid").innerHTML = '<div class="empty">No stories are available right now. Please check back soon.</div>';
+      $("load-more").style.display = "none";
+    }
+    state.loadedAt = Date.now();
+    if (state.maintenance.enabled) {
+      $("home-view").innerHTML = '<div class="empty" style="margin:55px auto">' +
+        safe(state.maintenance.message || "This publication is temporarily unavailable. Please check back shortly.") + '</div>';
+    }
+  }
+
+  async function refreshData() {
+    try {
+      const bundle = await loadRemote();
+      const oldIds = state.articles.map(a => a.id).join("|");
+      applyBundle(bundle); state.cacheUsed = false; render();
+      setStatus("Updated · " + (oldIds === state.articles.map(a => a.id).join("|") ? "Content checked" : "New stories loaded"), "");
+    } catch (e) {
+      console.warn("Refresh failed", e);
+      if (state.articles.length) setStatus("Update failed · previous edition retained.", "offline");
+    }
+  }
+
+  function setStatus(text, kind) {
+    document.querySelectorAll(".js-status").forEach(el => {
+      el.textContent = text;
+      el.className = "status js-status " + (kind || "");
+    });
+  }
+
+  function categoryName(id) {
+    return catNames[id] || state.categories.find(c => c.id === id)?.name || "News";
+  }
+  function byDate(a, b) { return new Date(b.published_at || 0) - new Date(a.published_at || 0); }
+  function imageFor(a) {
+    return a.image || "https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1200&q=80";
+  }
+  window.imageFallback = img => { img.onerror = null; img.src = "https://placehold.co/1200x800/202820/ffffff?text=Meridian+Wire"; };
+
+  function card(a) {
+    return `<article class="news-card" tabindex="0" role="link" aria-label="${safe(a.title)}" onclick="openArticle('${safe(a.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openArticle('${safe(a.id)}')}"><img loading="lazy" src="${safe(imageFor(a))}" alt="${safe(a.title)}" onerror="imageFallback(this)"><div class="card-body"><span class="category">${safe(categoryName(a.category))}</span><h3>${safe(a.title)}</h3><p>${safe(a.summary || "Open this story to read the full report.")}</p><div class="meta"><span>${dateLabel(a.published_at)}</span><span>${Number(a.read_minutes) || 2} min read</span></div></div></article>`;
+  }
+
+  function render() {
+    if (state.maintenance.enabled) return;
+    const articles = [...state.articles].sort(byDate);
+    const featured = articles.filter(a => a.featured);
+    const lead = featured[0] || articles[0];
+
+    if (lead) {
+      $("hero-main").classList.remove("skeleton");
+      $("hero-main").innerHTML = `<img src="${safe(imageFor(lead))}" alt="${safe(lead.title)}" onerror="imageFallback(this)"><div class="hero-copy"><span class="eyebrow">${safe(categoryName(lead.category))} · EDITOR’S CHOICE</span><h1>${safe(lead.title)}</h1><p>${safe(lead.summary || "")}</p><div class="meta"><span>${dateLabel(lead.published_at)}</span><span>${Number(lead.read_minutes) || 2} min read</span></div></div>`;
+      $("hero-main").onclick = () => openArticle(lead.id);
+      $("hero-main").onkeydown = e => { if (e.key === "Enter") openArticle(lead.id); };
+      $("hero-side").innerHTML = articles.filter(a => a.id !== lead.id).slice(0, 3).map(a =>
+        `<article class="side-story" tabindex="0" onclick="openArticle('${safe(a.id)}')" onkeydown="if(event.key==='Enter')openArticle('${safe(a.id)}')"><img loading="lazy" src="${safe(imageFor(a))}" alt="" onerror="this.style.visibility='hidden'"><div><span class="category">${safe(categoryName(a.category))}</span><h3>${safe(a.title)}</h3><div class="meta">${dateLabel(a.published_at)}</div></div></article>`
+      ).join("");
+      $("ticker-text").textContent = articles.slice(0, 5).map(a => a.title).join("  •  ");
+    }
+
+    const visible = articles.filter(a => state.category === "all" || a.category === state.category);
+    $("latest-grid").innerHTML = visible.slice(0, state.shown).map(card).join("") || '<div class="empty">No stories found in this section.</div>';
+    $("load-more").style.display = visible.length > state.shown ? "block" : "none";
+
+    const picks = articles.filter(a => a.featured).slice(1, 5);
+    $("recommended-grid").innerHTML = (picks.length ? picks : articles.slice(1, 5)).map(card).join("");
+
+    const trending = [...articles].sort((a, b) => (Number(b.trending_score) || 0) - (Number(a.trending_score) || 0)).slice(0, 6);
+    const trendEl = $("trending-list");
+    if (trendEl) {
+      trendEl.innerHTML = trending.map((a, i) =>
+        `<div class="rank-item" tabindex="0" onclick="openArticle('${safe(a.id)}')" onkeydown="if(event.key==='Enter')openArticle('${safe(a.id)}')"><span class="rank-num">${String(i + 1).padStart(2, "0")}</span><div><h4>${safe(a.title)}</h4><small>${safe(categoryName(a.category))} · ${dateLabel(a.published_at)}</small></div></div>`
+      ).join("");
+    }
+
+    if (state.query) showSearch(state.query);
+  }
+
+  window.openArticle = id => {
+    const a = state.articles.find(x => x.id === id);
+    if (!a) return;
+    history.pushState({article: id}, "", "#article/" + encodeURIComponent(id));
+    $("home-view").style.display = "none";
+    $("search-view").style.display = "none";
+    $("article-view").style.display = "block";
+    $("article-content").innerHTML =
+      `<div class="article-category">${safe(categoryName(a.category))}</div><h1 class="article-title">${safe(a.title)}</h1><div class="meta"><span>${dateLabel(a.published_at)}</span><span>${safe(a.author || state.settings.default_author || "Meridian Wire Staff")}</span><span>${Number(a.read_minutes) || 2} min read</span></div><p class="article-summary">${safe(a.summary || "")}</p><img class="article-image" src="${safe(imageFor(a))}" alt="${safe(a.title)}" onerror="imageFallback(this)"><div class="article-content">${safe(a.content || a.summary || "No additional story text is available.")}</div><div class="article-tools"><button class="tool-btn" onclick="navigator.clipboard?.writeText(location.href).then(()=>this.textContent='Link copied').catch(()=>{})">Copy story link</button></div>${a.source_url ? `<a class="source-link" href="${safe(a.source_url)}" target="_blank" rel="noopener noreferrer">Read original source ↗</a>` : ""}`;
+    window.scrollTo(0, 0);
+    document.title = a.title + " | Meridian Wire";
+  };
+
+  window.goHome = () => {
+    history.pushState({home: true}, "", location.pathname + location.search);
+    $("article-view").style.display = "none";
+    $("search-view").style.display = "none";
+    $("home-view").style.display = "block";
+    document.title = "Meridian Wire | Independent News";
+    window.scrollTo(0, 0);
+  };
+
+  window.filterCategory = cat => {
+    state.category = cat;
+    state.shown = 8;
+    document.querySelectorAll(".nav-link").forEach(x => x.classList.toggle("active", x.dataset.category === cat));
+    goHome(); render();
+    $("latest-section").scrollIntoView({behavior: "smooth"});
+  };
+
+  function showSearch(q) {
+    const term = q.trim().toLocaleLowerCase();
+    if (!term) return;
+    const matches = state.articles.filter(a => (a.title || "").toLocaleLowerCase().includes(term));
+    $("home-view").style.display = "none";
+    $("article-view").style.display = "none";
+    $("search-view").style.display = "block";
+    $("search-heading").textContent = `Search results for “${q}” (${matches.length})`;
+    $("search-grid").innerHTML = matches.length ? matches.map(card).join("") : '<div class="empty">No matching headlines found.</div>';
+  }
+
+  let searchTimer;
+  $("search-input").addEventListener("input", e => {
+    state.query = e.target.value;
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      if (state.query.trim()) showSearch(state.query);
+      else goHome();
+    }, 180);
+  });
+
+  $("category-nav").addEventListener("click", e => {
+    const link = e.target.closest("[data-category]");
+    if (!link) return;
+    e.preventDefault();
+    filterCategory(link.dataset.category);
+  });
+
+  $("load-more").addEventListener("click", () => { state.shown += 8; render(); });
+
+  window.addEventListener("popstate", () => {
+    const match = location.hash.match(/^#article\/(.+)$/);
+    if (match) openArticle(decodeURIComponent(match[1]));
+    else {
+      $("article-view").style.display = "none";
+      $("search-view").style.display = "none";
+      $("home-view").style.display = "block";
+      document.title = "Meridian Wire | Independent News";
+    }
+  });
+
+  try {
+    $("persian-date").textContent = new Intl.DateTimeFormat("en-US", {weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(new Date());
+  } catch (e) {}
+  $("top-date").textContent = new Intl.DateTimeFormat("en-US", {day:"numeric",month:"long"}).format(new Date());
+  $("year").textContent = new Date().getFullYear();
+
+  const initial = location.hash.match(/^#article\/(.+)$/);
+  loadData().then(() => {
+    if (initial) {
+      const id = decodeURIComponent(initial[1]);
+      if (state.articles.some(a => a.id === id)) openArticle(id);
+    }
+  });
+})();
+</script>
+</body>
+</html>
